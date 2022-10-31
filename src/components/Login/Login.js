@@ -1,29 +1,31 @@
 import { Button, Card, InlineError, TextField } from "@shopify/polaris";
 import React, { useState } from "react";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { validate } from "../../redux/Action";
 import classes from "./Login.module.css";
 function Login(props) {
+  // state to store the userCredentials
   const [userCredentials, setUserCredentials] = useState({
     sellerName: "",
     username: "",
     password: "",
   });
+  // State to store error
   const [error, setError] = useState({});
   const [authorizationError, setAuthorizationError] = useState("");
+  // for navigation
+  const navigateToProducts = useNavigate();
+  // function to validate user
   const validateUser = () => {
     var validate = {};
-
     if (userCredentials.sellerName === "")
       validate.sellerNameError = "Sellername either empty or Invalid";
     if (userCredentials.username === "")
       validate.userNameError = "Username either empty or Invalid";
-
     if (userCredentials.password === "")
       validate.passwordError = "Password either empty or Invalid";
-
     setError({ ...validate });
-
     if (
       userCredentials.sellerName !== "" &&
       userCredentials.username !== "" &&
@@ -52,6 +54,7 @@ function Login(props) {
               })
             );
             props.validate();
+            navigateToProducts('/products')
           } else {
             setAuthorizationError("Either Username or Password are Ivalid");
           }

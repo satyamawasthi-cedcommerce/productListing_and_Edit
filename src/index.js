@@ -6,12 +6,15 @@ import reportWebVitals from "./reportWebVitals";
 import { AppProvider } from "@shopify/polaris";
 import { Provider } from "react-redux";
 import store from "./store";
+import { BrowserRouter } from "react-router-dom";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode >
+  <React.StrictMode>
     <Provider store={store}>
       <AppProvider>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </AppProvider>
     </Provider>
   </React.StrictMode>
