@@ -3,6 +3,7 @@ import "@shopify/polaris/build/esm/styles.css";
 import Login from "./components/Login/Login";
 import { Route, Routes } from "react-router-dom";
 import ProductGrid from "./components/productListing/ProductGrid";
+import 'antd/dist/antd.css';
 function App() {
   return (
     <div className="App">

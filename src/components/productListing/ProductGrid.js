@@ -18,9 +18,71 @@ import { validate } from "../../redux/Action";
 import { connect } from "react-redux";
 import classes from "./ProductGrid.module.css";
 import useFetch from "../../fetch";
+import { Image, Table } from "antd";
+
+// column
+const columns = [
+  {
+    title: "Image",
+    dataIndex: "image",
+    key: "name",
+  },
+  {
+    title: "Title",
+    dataIndex: "title",
+    key: "age",
+  },
+  {
+    title: "Product Details",
+    dataIndex: "productDetails",
+  },
+  {
+    title: "Template",
+    dataIndex: "template",
+  },
+  {
+    title: "Inventory",
+    dataIndex: "inventory",
+  },
+  {
+    title: "Amazon Status",
+    dataIndex: "amazon",
+  },
+  {
+    title: "Activity",
+    dataIndex: "activity",
+  },
+  {
+    title: "Actions",
+    dataIndex: "actions",
+  },
+  
+];
+
+// rowSelection objects indicates the need for row selection
+const rowSelection = {
+  onChange: (selectedRowKeys, selectedRows) => {
+    console.log(
+      `selectedRowKeys: ${selectedRowKeys}`,
+      "selectedRows: ",
+      selectedRows
+    );
+  },
+  onSelect: (record, selected, selectedRows) => {
+    console.log(record, selected, selectedRows);
+  },
+  onSelectAll: (selected, selectedRows, changeRows) => {
+    console.log(selected, selectedRows, changeRows);
+  },
+};
 function ProductGrid(props) {
-  const { data, extractDataFromApi } = useFetch();
+  // State variable to store the whole object
+  const [productsData, setProductsData] = useState();
+  // state variable to store the required fields
+  const [productDataDisplay, setProductDataDisplay] = useState([]);
+  const { extractDataFromApi } = useFetch();
   const fetchFun = () => {
+    // following variables hold the info to be passed
     var url =
       "https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts";
     var payload = {
@@ -44,17 +106,34 @@ function ProductGrid(props) {
         "eyJzaG9waWZ5IjoiYW1hem9uX3NhbGVzX2NoYW5uZWwiLCJhbWF6b24iOiJhbWF6b24ifQ==",
       appTag: "amazon_sales_channel",
       Authorization:
-        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoiNjMzMjlkN2YwNDUxYzA3NGFhMGUxNWE4Iiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjY3MjI1NTMwLCJpc3MiOiJodHRwczpcL1wvYXBwcy5jZWRjb21tZXJjZS5jb20iLCJ0b2tlbl9pZCI6IjYzNWY5ZjdhMGI5YjIwMTVlNTQ0MjM2NyJ9.Tbaa3G1Jv8r7xAg6Y16fK2FTTso8j-NuI5IcMn9FJ8W4bd_k4uiNqJVMC__NC1OWn8ldrcmzJGwffop5rNQLRIdObWbIzr2TBxmDwtJKRSMh-4-amDO6wJQiJSe1rl6CIyZXMcZnAB3rPf9vka4JWhFfNntLgZlGfoLWYCnOsww_xygFyvxXKNrBEZic3XHBn3fnrlDahyrPwp0M3VQaE2lNJDZgSERvdkbLkL-Kkj9St7GT9nc01k8TcVGiKmy84a9MJd6VmeZqNXaamG-Fm-_ju1tvZfwO3O3Bln8BaCDvgpgqbYlLEEUBROJbccYFl46-z_GqIBVgKbdaCrl3KQ",
+        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoiNjMzMjlkN2YwNDUxYzA3NGFhMGUxNWE4Iiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjk4NzMxOTc2LCJpc3MiOiJodHRwczpcL1wvYXBwcy5jZWRjb21tZXJjZS5jb20iLCJ0b2tlbl9pZCI6IjYzNWY2NDQ4YzQxY2M2MjdhMzBjNmIyMiJ9.o0XvqNpmiAaXQgWC8LgaBrhx6Kjc6rwm0vi-aG-ezZHp3Ph1jcaBqKQq1u9PQSwiCjU6US8xiqMbN_l5JYEwmPOWWQF43Fdt8V2i_dYp2L4mj51rKn9pH7xCloNPAiqCAp7IlfdwXU2NL5cYlb8p4Ve9axRKuPaZ6FpEL49fP8zjlT5gsfR7lr5UD_iKmBH-F-R4ORgQC3vR0CfsW42XXebfTiKf5fh2qBAIrjtSPJyO0jgNxLCTppnT3ruBf3yDL7EcAOFXzUZn_G8NsOSaZp5AvMWIMDkpmBO0VvgkIqSuYOlICki6riprysfwhuwU1XAtpNwI6N571dfUTPhXsw",
     };
     // temporary varible to hold data
     var temp = extractDataFromApi(url, payload, method, headers);
     temp.then((data) => {
-      console.log(data);
+      setProductsData({ ...data });
+      console.log(data.data.rows);
+
+      var storeData = [];
+      data.data.rows.forEach((item, index) => {
+        storeData.push({
+          image: <Image src={item.main_image} width={90} />,
+          title: item.title,
+          // template: item.profile.profile_name
+        });
+
+        // 
+        console.log(item.title);
+      });
+      setProductDataDisplay([...storeData]);
     });
   };
+  console.log(productDataDisplay);
+  console.log(productsData);
   // calling function to fetch data
-  useEffect(() => fetchFun());
-  console.log(data);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => fetchFun(), []);
+
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const toggleIsUserMenuOpen = useCallback(
     () => setIsUserMenuOpen((isUserMenuOpen) => !isUserMenuOpen),
@@ -152,70 +231,95 @@ function ProductGrid(props) {
   );
 
   return (
-    <div>
-      <div style={{ height: "50px" }}>
-        <Frame topBar={topBarMarkup} logo={logo} />
-      </div>
-      <div className={classes.tableContainer}>
-        <div className={classes.navContainer}>
-          <Frame>
-            <Navigation location="/">
-              <Navigation.Section
-                items={[
-                  {
-                    url: "/",
-                    label: "Home",
-                    icon: HomeMinor,
-                  },
-                  {
-                    url: "/path/to/place",
-                    label: "Orders",
-                    icon: OrdersMinor,
-                    badge: "15",
-                  },
-                  {
-                    url: "/path/to/place",
-                    label: "Products",
-                    icon: ProductsMinor,
-                  },
-                ]}
-              />
-            </Navigation>
-          </Frame>
+    <>
+      {/* Topbar markup */}
+      <div>
+        <div style={{ height: "50px" }}>
+          <Frame topBar={topBarMarkup} logo={logo} />
         </div>
-        <div className={classes.gridContainer}>
-          <div className={classes.topContent}>
-            <div>
-              <Heading>Listings</Heading>
-              <p>
-                The section will enable you to manage all your listings of your
-                active Amazon account. The feature helps you view the status of
-                your listings along with performing actions like Bulk upload,
-                running Sync Status, Amazon Lookup, or linking your unlinked
-                Products by getting directed to the Product Linking section.
-              </p>
-            </div>
-            <div></div>
+        {/* table container div */}
+        <div className={classes.tableContainer}>
+          {/* div containing the navigation menu */}
+          <div className={classes.navContainer}>
+            <Frame>
+              <Navigation location="/">
+                <Navigation.Section
+                  items={[
+                    {
+                      url: "/",
+                      label: "Home",
+                      icon: HomeMinor,
+                    },
+                    {
+                      url: "/path/to/place",
+                      label: "Orders",
+                      icon: OrdersMinor,
+                      badge: "15",
+                    },
+                    {
+                      url: "/path/to/place",
+                      label: "Products",
+                      icon: ProductsMinor,
+                    },
+                  ]}
+                />
+              </Navigation>
+            </Frame>
           </div>
-          <br />
-          <Card>
-            <Tabs
-              tabs={tabs}
-              selected={selected}
-              onSelect={handleTabChange}
-              fitted
-            >
-              <Card.Section title={tabs[selected].content}>
-                <p>Tab {selected} selected</p>
-              </Card.Section>
-              {/* {selected === 0 ? 
-              <Card>hjgsh</Card>:<></>
-            } */}
-            </Tabs>
-          </Card>
+                 
+          {/* div containing the grid */}
+          <div className={classes.gridContainer}>
+            <div className={classes.topContent}>
+              <div>
+                <Heading>Listings</Heading>
+                <p>
+                  The section will enable you to manage all your listings of
+                  your active Amazon account. The feature helps you view the
+                  status of your listings along with performing actions like
+                  Bulk upload, running Sync Status, Amazon Lookup, or linking
+                  your unlinked Products by getting directed to the Product
+                  Linking section.
+                </p>
+              </div>
+              <div></div>
+            </div>
+            <br />
+            <Card>
+              <Tabs
+                tabs={tabs}
+                selected={selected}
+                onSelect={handleTabChange}
+                fitted
+              >
+                <Card.Section title={tabs[selected].content}>
+                  <Table
+                    expandable={{
+                      expandedRowRender: (record) => (
+                        <p
+                          style={{
+                            margin: 0,
+                          }}
+                        >
+                          {record.description}
+                        </p>
+                      ),
+                      rowExpandable: (record) =>
+                        record.name !== "Not Expandable",
+                    }}
+                    bordered
+                    columns={columns}
+                    rowSelection={{
+                      ...rowSelection,
+                    }}
+                    dataSource={productDataDisplay}
+                  />
+                </Card.Section>
+              </Tabs>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 const mapStateToProps = (state) => {
