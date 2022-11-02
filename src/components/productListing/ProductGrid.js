@@ -1,36 +1,22 @@
-import {
-  Badge,
-  Card,
-  Frame,
-  Heading,
-  Navigation,
-  Tabs,
-  TopBar,
-} from "@shopify/polaris";
+import {Badge,Banner,Card,Frame,Heading,Icon,Navigation,Select,Stack,Tabs,TextField,TopBar,} from "@shopify/polaris";
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  ArrowLeftMinor,
-  HomeMinor,
-  OrdersMinor,
-  ProductsMinor,
-} from "@shopify/polaris-icons";
+import {ArrowLeftMinor,HomeMinor,OrdersMinor,ProductsMinor,} from "@shopify/polaris-icons";
 import { validate } from "../../redux/Action";
 import { connect } from "react-redux";
 import classes from "./ProductGrid.module.css";
 import useFetch from "../../fetch";
-import { Image, Table } from "antd";
-
+import { Button, Image, Table, Typography } from "antd";
+import { MobileVerticalDotsMajor } from "@shopify/polaris-icons";
+const { Title } = Typography;
 // column
 const columns = [
   {
     title: "Image",
     dataIndex: "image",
-    key: "name",
   },
   {
     title: "Title",
     dataIndex: "title",
-    key: "age",
   },
   {
     title: "Product Details",
@@ -56,25 +42,8 @@ const columns = [
     title: "Actions",
     dataIndex: "actions",
   },
-  
 ];
-
-// rowSelection objects indicates the need for row selection
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      "selectedRows: ",
-      selectedRows
-    );
-  },
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record, selected, selectedRows);
-  },
-  onSelectAll: (selected, selectedRows, changeRows) => {
-    console.log(selected, selectedRows, changeRows);
-  },
-};
+// functional component 
 function ProductGrid(props) {
   // State variable to store the whole object
   const [productsData, setProductsData] = useState();
@@ -98,31 +67,131 @@ function ProductGrid(props) {
     };
     var method = "GET";
     var headers = {
-      "Ced-Source-Id": 500,
+      "Ced-Source-Id": 476,
       "Ced-Source-Name": "shopify",
-      "Ced-Target-Id": 530,
+      "Ced-Target-Id": 479,
       "Ced-Target-Name": "amazon",
       appCode:
         "eyJzaG9waWZ5IjoiYW1hem9uX3NhbGVzX2NoYW5uZWwiLCJhbWF6b24iOiJhbWF6b24ifQ==",
       appTag: "amazon_sales_channel",
       Authorization:
-        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoiNjMzMjlkN2YwNDUxYzA3NGFhMGUxNWE4Iiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjk4NzMxOTc2LCJpc3MiOiJodHRwczpcL1wvYXBwcy5jZWRjb21tZXJjZS5jb20iLCJ0b2tlbl9pZCI6IjYzNWY2NDQ4YzQxY2M2MjdhMzBjNmIyMiJ9.o0XvqNpmiAaXQgWC8LgaBrhx6Kjc6rwm0vi-aG-ezZHp3Ph1jcaBqKQq1u9PQSwiCjU6US8xiqMbN_l5JYEwmPOWWQF43Fdt8V2i_dYp2L4mj51rKn9pH7xCloNPAiqCAp7IlfdwXU2NL5cYlb8p4Ve9axRKuPaZ6FpEL49fP8zjlT5gsfR7lr5UD_iKmBH-F-R4ORgQC3vR0CfsW42XXebfTiKf5fh2qBAIrjtSPJyO0jgNxLCTppnT3ruBf3yDL7EcAOFXzUZn_G8NsOSaZp5AvMWIMDkpmBO0VvgkIqSuYOlICki6riprysfwhuwU1XAtpNwI6N571dfUTPhXsw",
+        "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoiNjMzMjk2ZDYwZDVlMzE3NjI3NThiMmY5Iiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjk4OTA3Mzc0LCJpc3MiOiJodHRwczpcL1wvYXBwcy5jZWRjb21tZXJjZS5jb20iLCJ0b2tlbl9pZCI6IjYzNjIxMTZlNTdiNGE3NjNlYzM5YWY5MiJ9.FXwul26U6GG2d9Wrfh5lNu-ikW_vwZ0tbBdjmoVTWhF3tOibyff7buM3tuIcgOkti9UvBpKtTo-SRU8A5UNEah37q1K1k-GQOSdwYxO1Q4Z9oF5AkIk8whl_-gZymjUqlMO0fjKJie6a_A4vxYk-PF8DEUHHOsc0MHeQA7TuaHR95fbV281SVXcmEP17_snN-eNsdOoP70vqiER3BkLV7Nr78JoSNZ38iqqznHEDKkLAgr2p3qI4OKZ7S6SiQglh1YfZgt4oZho868e8RAuV9QSomVpuuXAmyBHDGbUPrLTqvhj_CnzvQzEiNDnu__oh9UbWkTdZdAZhY_S5uzBMYg",
     };
     // temporary varible to hold data
     var temp = extractDataFromApi(url, payload, method, headers);
     temp.then((data) => {
       setProductsData({ ...data });
-      console.log(data.data.rows);
-
+      // console.log(data.data.rows);
+      // variable to hold data
       var storeData = [];
       data.data.rows.forEach((item, index) => {
+        // variables to store data for product_details
+        var childData = [];
+        var parentContainer_id = item.source_product_id;
+        var parentProductDetails = <></>;
+        var childDetails = item.items;
+        var inventoryQuantity = 0;
+        // condition
+        if (item.type === "variation") {
+          item.items.forEach((childItem, childIndex) => {
+            var barCode = childItem.barcode;
+            var asinCode = childItem.asin;
+            if (parentContainer_id !== childItem.source_product_id) {
+              inventoryQuantity += childItem.quantity;
+
+              childData.push({
+                image: (
+                  <Image
+                    src={childItem.main_image}
+                    width={90}
+                    alt={childItem.title}
+                  />
+                ),
+                title: childItem.title,
+                productDetails: (
+                  <>
+                    <Title level={5}>Price: ${childItem.price}</Title>
+                    <br />
+                    <Title level={5}>SKU: {childItem.sku}</Title>
+                    <br />
+                    {barCode ? (<Title level={5}>Barcode: {childItem.barcode} </Title>) : (<Title level={5}> Barcode: N/A</Title>)}
+                    <br />
+                    {asinCode ? (<Title level={5}>ASIN: {childItem.asin}</Title>) : (<Title level={5}>ASIN: N/A</Title>)}
+                  </>
+                ),
+                template: "N/A",
+                inventory: childItem.quantity,
+              });
+            } else {
+              parentProductDetails = (
+                <>
+                  <>
+                    <Title level={5}>SKU: {childDetails[childIndex].sku}</Title>
+                    <br />
+                    {asinCode ? (
+                      <Title level={5}>
+                        ASIN: {childDetails[childIndex].asin}
+                      </Title>
+                    ) : (
+                      <>
+                        <Title level={5}>ASIN: N/A</Title>
+                      </>
+                    )}
+                  </>
+                </>
+              );
+            }
+          });
+        } else {
+          childDetails.forEach((parentItemDetails, parentItemIndex) => {
+            console.log(parentItemDetails);
+            console.log(parentContainer_id);
+            console.log(parentItemDetails.source_product_id);
+            if (parentContainer_id === parentItemDetails.source_product_id) {
+              console.log(parentItemDetails.source_product_id);
+              parentProductDetails = (
+                <>
+                  <>
+                    <Title level={5}>Price: ${parentItemDetails.price}</Title>
+                    <br />
+                    <Title level={5}>SKU: {parentItemDetails.sku}</Title>
+                    <br />
+                    {parentItemDetails.asin ? (
+                      <Title level={5}>ASIN: {parentItemDetails.asin}</Title>
+                    ) : (
+                      <Title level={5}>ASIN: N/A</Title>
+                    )}
+                    <br />
+                    {parentItemDetails.barCode ? (
+                      <Title level={5}>
+                        Barcode: {parentItemDetails.barcode}
+                      </Title>
+                    ) : (
+                      <Title level={5}>Barcode:N/A</Title>
+                    )}
+                  </>
+                </>
+              );
+            }
+          });
+        }
         storeData.push({
-          image: <Image src={item.main_image} width={90} />,
+          key: index,
+          image: <Image src={item.main_image} width={90} alt={item.title} />,
           title: item.title,
-          // template: item.profile.profile_name
+          productDetails: parentProductDetails,
+          template: "N/A",
+          inventory: inventoryQuantity + "in stock",
+          actions: (
+            <Button>
+              <Icon source={MobileVerticalDotsMajor} color="base" />
+            </Button>
+          ),
+          activity: "--",
+          description: [...childData],
         });
 
-        // 
+        //
         console.log(item.title);
       });
       setProductDataDisplay([...storeData]);
@@ -266,7 +335,7 @@ function ProductGrid(props) {
               </Navigation>
             </Frame>
           </div>
-                 
+
           {/* div containing the grid */}
           <div className={classes.gridContainer}>
             <div className={classes.topContent}>
@@ -280,8 +349,19 @@ function ProductGrid(props) {
                   your unlinked Products by getting directed to the Product
                   Linking section.
                 </p>
+                <div>
+                  <Banner
+                    status="warning"
+                    title="Before you can purchase a shipping label, this change needs to be made:"
+                    action={{ content: "Edit address" }}
+                  >
+                    <p>
+                    The section will enable you to manage all your listings of
+                  your active Amazon account.
+                    </p>
+                  </Banner>
+                </div>
               </div>
-              <div></div>
             </div>
             <br />
             <Card>
@@ -291,25 +371,32 @@ function ProductGrid(props) {
                 onSelect={handleTabChange}
                 fitted
               >
+                <div className={classes.searchFilterContainers}>
+                  <Stack>
+                    <TextField placeholder="Search with title vendor or product" />
+                    <Button>More Filters</Button>
+                    <Select></Select>
+                    <Button>Sync Status</Button>
+                    <Button>Amazon Lookup</Button>
+                    <Select></Select>
+                  </Stack>
+                </div>
                 <Card.Section title={tabs[selected].content}>
                   <Table
                     expandable={{
                       expandedRowRender: (record) => (
-                        <p
-                          style={{
-                            margin: 0,
-                          }}
-                        >
-                          {record.description}
-                        </p>
+                        <Table
+                          bordered
+                          columns={columns}
+                          dataSource={record.description}
+                          pagination={false}
+                        />
                       ),
-                      rowExpandable: (record) =>
-                        record.name !== "Not Expandable",
+                      rowExpandable: (record) => record.description.length > 0,
                     }}
                     bordered
                     columns={columns}
                     rowSelection={{
-                      ...rowSelection,
                     }}
                     dataSource={productDataDisplay}
                   />
