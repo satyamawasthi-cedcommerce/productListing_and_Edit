@@ -1,12 +1,16 @@
-import {Badge,Banner,Card,Frame,Heading,Icon,Navigation,Select,Stack,Tabs,TextField,TopBar,} from "@shopify/polaris";
+import {Badge,Card,Frame,Icon,Tabs,TopBar,} from "@shopify/polaris";
 import React, { useCallback, useEffect, useState } from "react";
-import {ArrowLeftMinor,HomeMinor,OrdersMinor,ProductsMinor,} from "@shopify/polaris-icons";
+import { ArrowLeftMinor } from "@shopify/polaris-icons";
 import { validate } from "../../redux/Action";
 import { connect } from "react-redux";
 import classes from "./ProductGrid.module.css";
 import useFetch from "../../fetch";
 import { Button, Image, Table, Typography } from "antd";
 import { MobileVerticalDotsMajor } from "@shopify/polaris-icons";
+import BannerProducts from "../banner/BannerProducts";
+import NavigationBar from "../navigation/NavigationBar";
+import FilterDrawer from "../filterDrawer/FilterDrawer";
+import TopContent from "../topContent/TopContent";
 const { Title } = Typography;
 // column
 const columns = [
@@ -43,7 +47,7 @@ const columns = [
     dataIndex: "actions",
   },
 ];
-// functional component 
+// functional component
 function ProductGrid(props) {
   // State variable to store the whole object
   const [productsData, setProductsData] = useState();
@@ -53,7 +57,7 @@ function ProductGrid(props) {
   const fetchFun = () => {
     // following variables hold the info to be passed
     var url =
-      "https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts";
+      "https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?count=150";
     var payload = {
       source: {
         marketplace: "shopify",
@@ -81,7 +85,6 @@ function ProductGrid(props) {
     var temp = extractDataFromApi(url, payload, method, headers);
     temp.then((data) => {
       setProductsData({ ...data });
-      // console.log(data.data.rows);
       // variable to hold data
       var storeData = [];
       data.data.rows.forEach((item, index) => {
@@ -114,9 +117,17 @@ function ProductGrid(props) {
                     <br />
                     <Title level={5}>SKU: {childItem.sku}</Title>
                     <br />
-                    {barCode ? (<Title level={5}>Barcode: {childItem.barcode} </Title>) : (<Title level={5}> Barcode: N/A</Title>)}
+                    {barCode ? (
+                      <Title level={5}>Barcode: {childItem.barcode} </Title>
+                    ) : (
+                      <Title level={5}> Barcode: N/A</Title>
+                    )}
                     <br />
-                    {asinCode ? (<Title level={5}>ASIN: {childItem.asin}</Title>) : (<Title level={5}>ASIN: N/A</Title>)}
+                    {asinCode ? (
+                      <Title level={5}>ASIN: {childItem.asin}</Title>
+                    ) : (
+                      <Title level={5}>ASIN: N/A</Title>
+                    )}
                   </>
                 ),
                 template: "N/A",
@@ -144,32 +155,16 @@ function ProductGrid(props) {
           });
         } else {
           childDetails.forEach((parentItemDetails, parentItemIndex) => {
-            console.log(parentItemDetails);
-            console.log(parentContainer_id);
-            console.log(parentItemDetails.source_product_id);
             if (parentContainer_id === parentItemDetails.source_product_id) {
-              console.log(parentItemDetails.source_product_id);
               parentProductDetails = (
                 <>
-                  <>
                     <Title level={5}>Price: ${parentItemDetails.price}</Title>
                     <br />
                     <Title level={5}>SKU: {parentItemDetails.sku}</Title>
                     <br />
-                    {parentItemDetails.asin ? (
-                      <Title level={5}>ASIN: {parentItemDetails.asin}</Title>
-                    ) : (
-                      <Title level={5}>ASIN: N/A</Title>
-                    )}
+                    {parentItemDetails.asin ? (<Title level={5}>ASIN: {parentItemDetails.asin}</Title>) : (<Title level={5}>ASIN: N/A</Title>)}
                     <br />
-                    {parentItemDetails.barCode ? (
-                      <Title level={5}>
-                        Barcode: {parentItemDetails.barcode}
-                      </Title>
-                    ) : (
-                      <Title level={5}>Barcode:N/A</Title>
-                    )}
-                  </>
+                    {parentItemDetails.barCode ? (<Title level={5}>Barcode: {parentItemDetails.barcode}</Title>) : (<Title level={5}>Barcode:N/A</Title>)}
                 </>
               );
             }
@@ -192,7 +187,6 @@ function ProductGrid(props) {
         });
 
         //
-        console.log(item.title);
       });
       setProductDataDisplay([...storeData]);
     });
@@ -302,113 +296,61 @@ function ProductGrid(props) {
   return (
     <>
       {/* Topbar markup */}
-      <div>
-        <div style={{ height: "50px" }}>
-          <Frame topBar={topBarMarkup} logo={logo} />
+      <div style={{ height: "50px" }}>
+        <Frame topBar={topBarMarkup} logo={logo} />
+      </div>
+      {/* table container div */}
+      <div className={classes.tableContainer}>
+        {/* div containing the navigation menu */}
+        <div className={classes.navContainer}>
+          <NavigationBar />
         </div>
-        {/* table container div */}
-        <div className={classes.tableContainer}>
-          {/* div containing the navigation menu */}
-          <div className={classes.navContainer}>
-            <Frame>
-              <Navigation location="/">
-                <Navigation.Section
-                  items={[
-                    {
-                      url: "/",
-                      label: "Home",
-                      icon: HomeMinor,
-                    },
-                    {
-                      url: "/path/to/place",
-                      label: "Orders",
-                      icon: OrdersMinor,
-                      badge: "15",
-                    },
-                    {
-                      url: "/path/to/place",
-                      label: "Products",
-                      icon: ProductsMinor,
-                    },
-                  ]}
-                />
-              </Navigation>
-            </Frame>
-          </div>
 
-          {/* div containing the grid */}
-          <div className={classes.gridContainer}>
-            <div className={classes.topContent}>
-              <div>
-                <Heading>Listings</Heading>
-                <p>
-                  The section will enable you to manage all your listings of
-                  your active Amazon account. The feature helps you view the
-                  status of your listings along with performing actions like
-                  Bulk upload, running Sync Status, Amazon Lookup, or linking
-                  your unlinked Products by getting directed to the Product
-                  Linking section.
-                </p>
-                <div>
-                  <Banner
-                    status="warning"
-                    title="Before you can purchase a shipping label, this change needs to be made:"
-                    action={{ content: "Edit address" }}
-                  >
-                    <p>
-                    The section will enable you to manage all your listings of
-                  your active Amazon account.
-                    </p>
-                  </Banner>
-                </div>
-              </div>
+        {/* div containing the grid */}
+        <div className={classes.gridContainer}>
+          <div className={classes.topContent}>
+            <div>
+              <TopContent />
+              <BannerProducts />
             </div>
-            <br />
-            <Card>
-              <Tabs
-                tabs={tabs}
-                selected={selected}
-                onSelect={handleTabChange}
-                fitted
-              >
-                <div className={classes.searchFilterContainers}>
-                  <Stack>
-                    <TextField placeholder="Search with title vendor or product" />
-                    <Button>More Filters</Button>
-                    <Select></Select>
-                    <Button>Sync Status</Button>
-                    <Button>Amazon Lookup</Button>
-                    <Select></Select>
-                  </Stack>
-                </div>
-                <Card.Section title={tabs[selected].content}>
-                  <Table
-                    expandable={{
-                      expandedRowRender: (record) => (
-                        <Table
-                          bordered
-                          columns={columns}
-                          dataSource={record.description}
-                          pagination={false}
-                        />
-                      ),
-                      rowExpandable: (record) => record.description.length > 0,
-                    }}
-                    bordered
-                    columns={columns}
-                    rowSelection={{
-                    }}
-                    dataSource={productDataDisplay}
-                  />
-                </Card.Section>
-              </Tabs>
-            </Card>
           </div>
+          <br />
+          <Card>
+            <Tabs
+              tabs={tabs}
+              selected={selected}
+              onSelect={handleTabChange}
+              fitted
+            >
+              <div className={classes.searchFilterContainers}>
+                <FilterDrawer />
+              </div>
+              <Card.Section title={tabs[selected].content}>
+                <Table
+                  expandable={{
+                    expandedRowRender: (record) => (
+                      <Table
+                        bordered
+                        columns={columns}
+                        dataSource={record.description}
+                        pagination={false}
+                      />
+                    ),
+                    rowExpandable: (record) => record.description.length > 0,
+                  }}
+                  columns={columns}
+                  rowSelection={{}}
+                  dataSource={productDataDisplay}
+                />
+              </Card.Section>
+            </Tabs>
+          </Card>
         </div>
       </div>
     </>
   );
 }
+// redux functions
 const mapStateToProps = (state) => {
   return {
     user: state.userCredentials,
