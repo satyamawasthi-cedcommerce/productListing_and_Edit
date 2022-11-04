@@ -1,11 +1,11 @@
-import {Badge,Card,Frame,Icon,Tabs,TopBar,} from "@shopify/polaris";
+import { Badge, Card, Frame, Icon, Tabs, TopBar } from "@shopify/polaris";
 import React, { useCallback, useEffect, useState } from "react";
 import { ArrowLeftMinor } from "@shopify/polaris-icons";
 import { validate } from "../../redux/Action";
 import { connect } from "react-redux";
 import classes from "./ProductGrid.module.css";
 import useFetch from "../../fetch";
-import { Button, Image, Table, Typography } from "antd";
+import { Button, Image, Spin, Table, Typography } from "antd";
 import { MobileVerticalDotsMajor } from "@shopify/polaris-icons";
 import BannerProducts from "../banner/BannerProducts";
 import NavigationBar from "../navigation/NavigationBar";
@@ -53,7 +53,13 @@ function ProductGrid(props) {
   const [productsData, setProductsData] = useState();
   // state variable to store the required fields
   const [productDataDisplay, setProductDataDisplay] = useState([]);
+  const [userDetails, setUserDetails] = useState({
+    ...JSON.parse(sessionStorage.getItem("userCredentials")),
+  });
+  // props.user
+  console.log(sessionStorage.getItem("userCredentials"));
   const { extractDataFromApi } = useFetch();
+  const [load, setLoad] = useState(false);
   const fetchFun = () => {
     // following variables hold the info to be passed
     var url =
@@ -81,9 +87,11 @@ function ProductGrid(props) {
       Authorization:
         "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoiNjMzMjk2ZDYwZDVlMzE3NjI3NThiMmY5Iiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjk4OTA3Mzc0LCJpc3MiOiJodHRwczpcL1wvYXBwcy5jZWRjb21tZXJjZS5jb20iLCJ0b2tlbl9pZCI6IjYzNjIxMTZlNTdiNGE3NjNlYzM5YWY5MiJ9.FXwul26U6GG2d9Wrfh5lNu-ikW_vwZ0tbBdjmoVTWhF3tOibyff7buM3tuIcgOkti9UvBpKtTo-SRU8A5UNEah37q1K1k-GQOSdwYxO1Q4Z9oF5AkIk8whl_-gZymjUqlMO0fjKJie6a_A4vxYk-PF8DEUHHOsc0MHeQA7TuaHR95fbV281SVXcmEP17_snN-eNsdOoP70vqiER3BkLV7Nr78JoSNZ38iqqznHEDKkLAgr2p3qI4OKZ7S6SiQglh1YfZgt4oZho868e8RAuV9QSomVpuuXAmyBHDGbUPrLTqvhj_CnzvQzEiNDnu__oh9UbWkTdZdAZhY_S5uzBMYg",
     };
+    setLoad(true);
     // temporary varible to hold data
     var temp = extractDataFromApi(url, payload, method, headers);
     temp.then((data) => {
+      setLoad(false);
       setProductsData({ ...data });
       // variable to hold data
       var storeData = [];
@@ -107,6 +115,7 @@ function ProductGrid(props) {
                   <Image
                     src={childItem.main_image}
                     width={90}
+                    height={90}
                     alt={childItem.title}
                   />
                 ),
@@ -136,19 +145,19 @@ function ProductGrid(props) {
             } else {
               parentProductDetails = (
                 <>
-                  <>
-                    <Title level={5}>SKU: {childDetails[childIndex].sku}</Title>
-                    <br />
-                    {asinCode ? (
-                      <Title level={5}>
-                        ASIN: {childDetails[childIndex].asin}
-                      </Title>
-                    ) : (
-                      <>
-                        <Title level={5}>ASIN: N/A</Title>
-                      </>
-                    )}
-                  </>
+                  <p>
+                    <b>SKU:</b> {childDetails[childIndex].sku}
+                  </p>
+                  {asinCode ? (
+                    <p>
+                      <b> ASIN:</b>
+                      {childDetails[childIndex].asin}
+                    </p>) : (<>
+                      <p>
+                        <b>ASIN:</b> N/A
+                      </p>
+                    </>
+                  )}
                 </>
               );
             }
@@ -158,13 +167,32 @@ function ProductGrid(props) {
             if (parentContainer_id === parentItemDetails.source_product_id) {
               parentProductDetails = (
                 <>
-                    <Title level={5}>Price: ${parentItemDetails.price}</Title>
-                    <br />
-                    <Title level={5}>SKU: {parentItemDetails.sku}</Title>
-                    <br />
-                    {parentItemDetails.asin ? (<Title level={5}>ASIN: {parentItemDetails.asin}</Title>) : (<Title level={5}>ASIN: N/A</Title>)}
-                    <br />
-                    {parentItemDetails.barCode ? (<Title level={5}>Barcode: {parentItemDetails.barcode}</Title>) : (<Title level={5}>Barcode:N/A</Title>)}
+                  <p>
+                    <b>Price:</b> ${parentItemDetails.price}
+                  </p>
+                  <p>
+                    <b>SKU: </b>
+                    {parentItemDetails.sku}
+                  </p>
+                  {parentItemDetails.asin ? (
+                    <p>
+                      <b>ASIN:</b> {parentItemDetails.asin}
+                    </p>
+                  ) : (
+                    <p>
+                      <b>ASIN:</b> N/A
+                    </p>
+                  )}
+                  {parentItemDetails.barCode ? (
+                    <p>
+                      <b>Barcode: </b>
+                      {parentItemDetails.barcode}
+                    </p>
+                  ) : (
+                    <p>
+                      <b>Barcode:</b>N/A
+                    </p>
+                  )}
                 </>
               );
             }
@@ -195,6 +223,7 @@ function ProductGrid(props) {
   console.log(productsData);
   // calling function to fetch data
   // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => fetchFun(), []);
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -274,9 +303,9 @@ function ProductGrid(props) {
   };
   const userMenuMarkup = (
     <TopBar.UserMenu
-      name={props.user.sellerName}
-      detail={props.user.username}
-      initials={props.user.sellerName.charAt(0)}
+      name={userDetails.sellerName}
+      detail={userDetails.username}
+      initials={userDetails.sellerName.charAt(0)}
       actions={[
         {
           items: [
@@ -341,6 +370,7 @@ function ProductGrid(props) {
                   columns={columns}
                   rowSelection={{}}
                   dataSource={productDataDisplay}
+                  loading={load}
                 />
               </Card.Section>
             </Tabs>
