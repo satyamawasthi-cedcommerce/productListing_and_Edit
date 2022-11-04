@@ -1,11 +1,11 @@
-import { Badge, Card, Frame, Icon, Tabs, TopBar } from "@shopify/polaris";
+import { Badge, Card, Frame, Icon, Pagination, Tabs, TopBar } from "@shopify/polaris";
 import React, { useCallback, useEffect, useState } from "react";
 import { ArrowLeftMinor } from "@shopify/polaris-icons";
 import { validate } from "../../redux/Action";
 import { connect } from "react-redux";
 import classes from "./ProductGrid.module.css";
 import useFetch from "../../fetch";
-import { Button, Image, Spin, Table, Typography } from "antd";
+import { Button, Image, Table, Typography } from "antd";
 import { MobileVerticalDotsMajor } from "@shopify/polaris-icons";
 import BannerProducts from "../banner/BannerProducts";
 import NavigationBar from "../navigation/NavigationBar";
@@ -63,7 +63,7 @@ function ProductGrid(props) {
   const fetchFun = () => {
     // following variables hold the info to be passed
     var url =
-      "https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?count=150";
+      "https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?count=5";
     var payload = {
       source: {
         marketplace: "shopify",
@@ -152,7 +152,9 @@ function ProductGrid(props) {
                     <p>
                       <b> ASIN:</b>
                       {childDetails[childIndex].asin}
-                    </p>) : (<>
+                    </p>
+                  ) : (
+                    <>
                       <p>
                         <b>ASIN:</b> N/A
                       </p>
@@ -223,7 +225,6 @@ function ProductGrid(props) {
   console.log(productsData);
   // calling function to fetch data
   // eslint-disable-next-line react-hooks/exhaustive-deps
-
   useEffect(() => fetchFun(), []);
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -356,6 +357,7 @@ function ProductGrid(props) {
               </div>
               <Card.Section title={tabs[selected].content}>
                 <Table
+                  pagination={false}
                   expandable={{
                     expandedRowRender: (record) => (
                       <Table
@@ -374,7 +376,41 @@ function ProductGrid(props) {
                 />
               </Card.Section>
             </Tabs>
+            <Pagination
+            label={1}
+            hasPrevious={true}
+            onPrevious={() => {}}
+            hasNext={true}
+            onNext={() => {
+              fetch(`https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?count=50`,
+                {
+                  method: "GET",
+                  payload: {
+                    // count: 50,
+                    next: "eyJjdXJzb3IiOnsiJG9pZCI6IjYzNjIxNGRhMjQwMmM3YTcxMjIxN2ZlZSJ9LCJwb2ludGVyIjpbeyIkb2lkIjoiNjM2MjE0ZGEyNDAyYzdhNzEyMjE3ZTcyIn1dLCJ0b3RhbFBhZ2VSZWFkIjoyfQ==",
+                    productOnly: true,
+                    target_marketplace:
+                      "eyJtYXJrZXRwbGFjZSI6ImFsbCIsInNob3BfaWQiOm51bGx9",
+                  },
+                  headers: {
+                    "Ced-Source-Id": 476,
+                    "Ced-Source-Name": "shopify",
+                    "Ced-Target-Id": 479,
+                    "Ced-Target-Name": "amazon",
+                    appCode:
+                      "eyJzaG9waWZ5IjoiYW1hem9uX3NhbGVzX2NoYW5uZWwiLCJhbWF6b24iOiJhbWF6b24ifQ==",
+                    appTag: "amazon_sales_channel",
+                    authorization:
+                      "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoiNjMzMjk2ZDYwZDVlMzE3NjI3NThiMmY5Iiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjk4OTA3Mzc0LCJpc3MiOiJodHRwczpcL1wvYXBwcy5jZWRjb21tZXJjZS5jb20iLCJ0b2tlbl9pZCI6IjYzNjIxMTZlNTdiNGE3NjNlYzM5YWY5MiJ9.FXwul26U6GG2d9Wrfh5lNu-ikW_vwZ0tbBdjmoVTWhF3tOibyff7buM3tuIcgOkti9UvBpKtTo-SRU8A5UNEah37q1K1k-GQOSdwYxO1Q4Z9oF5AkIk8whl_-gZymjUqlMO0fjKJie6a_A4vxYk-PF8DEUHHOsc0MHeQA7TuaHR95fbV281SVXcmEP17_snN-eNsdOoP70vqiER3BkLV7Nr78JoSNZ38iqqznHEDKkLAgr2p3qI4OKZ7S6SiQglh1YfZgt4oZho868e8RAuV9QSomVpuuXAmyBHDGbUPrLTqvhj_CnzvQzEiNDnu__oh9UbWkTdZdAZhY_S5uzBMYg",
+                  },
+                }
+                  
+              ).then((response) => response.json())
+              .then((nextData) => {console.log(nextData)})
+            }}
+          />
           </Card>
+          
         </div>
       </div>
     </>
