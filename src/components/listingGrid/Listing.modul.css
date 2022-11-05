@@ -1,0 +1,14 @@
+.tableContainer {
+  display: flex;
+}
+.gridContainer {
+  width: 90%;
+  padding: 2% 5%;
+}
+.topContent {
+  display: flex;
+  justify-content: space-around;
+}
+.searchFilterContainers {
+  padding: 1%;
+}

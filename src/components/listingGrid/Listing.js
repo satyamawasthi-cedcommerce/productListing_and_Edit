@@ -1,23 +1,28 @@
-import { Icon } from "@shopify/polaris";
-import React, { useEffect, useState } from "react";
-import { validate } from "../../redux/Action";
-import { connect } from "react-redux";
-import classes from "./ProductGrid.module.css";
+import { Badge, Card, Icon, Tabs } from "@shopify/polaris";
+import React, { useCallback, useEffect, useState } from "react";
+// import { ArrowLeftMinor } from "@shopify/polaris-icons";
+import classes from "./Listing.modul.css";
 import useFetch from "../../fetch";
-import { Button, Image } from "antd";
+import { Button, Image, Table } from "antd";
 import { MobileVerticalDotsMajor } from "@shopify/polaris-icons";
-import NavigationBar from "../navigation/NavigationBar";
-import Topbar from "../topBar/Topbar";
-import Listing from "../listingGrid/Listing";
-// functional component
-function ProductGrid() {
+import BannerProducts from "../banner/BannerProducts";
+import FilterDrawer from "../filterDrawer/FilterDrawer";
+import TopContent from "../topContent/TopContent";
+import { childColumns, columns } from "../../tableColumns";
+
+function Listing() {
   // State variable to store the whole object
   const [productsData, setProductsData] = useState();
   // state variable to store the required fields
   const [productDataDisplay, setProductDataDisplay] = useState([]);
   const { extractDataFromApi } = useFetch();
-  // eslint-disable-next-line no-unused-vars
   const [load, setLoad] = useState(false);
+  var [statusDataCount, setStatusDataCount] = useState({
+    notListed: 0,
+    inactive: 0,
+    incomplete: 0,
+    active: 0,
+  });
   const fetchFun = () => {
     // following variables hold the info to be passed
     var url =
@@ -171,35 +176,143 @@ function ProductGrid() {
   console.log(productsData);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => fetchFun(), []);
+  const [selected, setSelected] = useState(0);
+  const handleTabChange = useCallback(
+    (selectedTabIndex) => setSelected(selectedTabIndex),
+    []
+  );
+  // Providing tab navigation
+  const tabs = [
+    {
+      id: "all-products",
+      content: <span>All</span>,
+      accessibilityLabel: "All Products",
+      panelID: "all-customers-fitted-content-3",
+    },
+    {
+      id: "Not-listed",
+      content: (
+        <span>
+          Not Listed <Badge status="new">{statusDataCount.notListed}</Badge>
+        </span>
+      ),
+      panelID: "accepts-marketing-fitted-content-3",
+    },
+    {
+      id: "Inactive",
+      content: (
+        <span>
+          Inactive <Badge status="critical">{statusDataCount.inactive}</Badge>
+        </span>
+      ),
+      panelID: "accepts-marketing-fitted-content-3",
+    },
+    {
+      id: "Incomplete",
+      content: (
+        <span>
+          Incomplete<Badge status="warning">{statusDataCount.incomplete}</Badge>
+        </span>
+      ),
+      panelID: "accepts-marketing-fitted-content-3",
+    },
+    {
+      id: "active",
+      content: (
+        <span>
+          Active <Badge status="success">{statusDataCount.active}</Badge>
+        </span>
+      ),
+      panelID: "accepts-marketing-fitted-content-3",
+    },
+    {
+      id: "error",
+      content: (
+        <span>
+          Error 
+        </span>
+      ),
+      panelID: "accepts-marketing-fitted-content-3",
+    },
+  ];
+  const fetchStatus = () => {
+    var url = `https://multi-account.sellernext.com/home/public/connector/product/getStatusWiseCount`;
+    var temp = extractDataFromApi(url);
+    temp.then((statusCountData) => {
+      console.log(statusCountData);
+      var tempStatus = {
+        notListed: 0,
+        inactive: 0,
+        incomplete: 0,
+        active: 0,
+      };
+      // eslint-disable-next-line array-callback-return
+      statusCountData.data.map((item,index) =>{
+        if(item._id === "Inactive"){
+          tempStatus.inactive = item.total
+        }
+        if(item._id === "Active"){
+          tempStatus.active = item.total
+        }
+        if(item._id === null){
+          tempStatus.notListed = item.total
+        }
+        if(item._id === "Incomplete"){
+          tempStatus.incomplete = item.total
+        }
+      })
+      setStatusDataCount({...tempStatus})
+    });
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => fetchStatus(), []);
+
   return (
-    <>
-      {/* Topbar markup */}
-      <div style={{ height: "50px" }}>
-        <Topbar />
-      </div>
-      {/* table container div */}
-      <div className={classes.tableContainer}>
-        {/* div containing the navigation menu */}
-        <div className={classes.navContainer}>
-          <NavigationBar />
+    <div>
+      {" "}
+      <div className={classes.gridContainer}>
+        <div className={classes.topContent}>
+          <div>
+            <TopContent />
+            <BannerProducts />
+          </div>
         </div>
-        <div className={classes.listContainer}>
-        <Listing />
-        </div>
+        <br />
+        <Card>
+          <Tabs
+            tabs={tabs}
+            selected={selected}
+            onSelect={handleTabChange}
+            fitted
+          >
+            <div className={classes.searchFilterContainers}>
+              <FilterDrawer />
+            </div>
+            <Card.Section title={tabs[selected].content}>
+              <Table
+                pagination={false}
+                expandable={{
+                  expandedRowRender: (record) => (
+                    <Table
+                      bordered
+                      columns={childColumns}
+                      dataSource={record.description}
+                      pagination={false}
+                    />
+                  ),
+                  rowExpandable: (record) => record.description.length > 0,
+                }}
+                columns={columns}
+                rowSelection={{}}
+                dataSource={productDataDisplay}
+                loading={load}
+              />
+            </Card.Section>
+          </Tabs>
+        </Card>
       </div>
-    </>
+    </div>
   );
 }
-// redux functions
-const mapStateToProps = (state) => {
-  return {
-    user: state.userCredentials,
-  };
-};
-// this function is passed as second argument to connect
-const mapDispatchToProps = (dispatch) => {
-  return {
-    validate: (value) => dispatch(validate(value)),
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(ProductGrid);
+
+export default Listing;

@@ -10,8 +10,6 @@
     display:flex;
     justify-content: space-around;
 }
-.searchFilterContainers{
+.listContainer{
     padding:1%;
-    margin-top: 2%;
-
 }
