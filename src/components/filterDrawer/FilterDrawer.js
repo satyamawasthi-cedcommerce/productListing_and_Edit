@@ -2,7 +2,9 @@ import {
   ChoiceList,
   Columns,
   Filters,
+  Frame,
   Modal,
+  Page,
   RangeSlider,
   Select,
   TextContainer,
@@ -13,7 +15,6 @@ import { Button } from "antd";
 import React, { useCallback, useState } from "react";
 
 function FilterDrawer() {
-
   const [active, setActive] = useState(false);
   const [lookupActive, setLookupActive] = useState(false);
 
@@ -23,7 +24,6 @@ function FilterDrawer() {
     [lookupActive]
   );
   const [syncDataResult, setSyncDataResult] = useState();
-  
 
   const fetchSync = () => {
     fetch(
@@ -228,9 +228,8 @@ function FilterDrawer() {
 
   //
   return (
-    <div> 
-      <Columns columns={{xs: '2.5fr 1fr 1fr 1fr 1fr'}}>
-        {toastMarkup}
+    <div>
+      <Columns columns={{ xs: "2.5fr 1fr 1fr 1fr 1fr" }}>
         <Filters
           queryValue={queryValue}
           filters={filters}
@@ -287,6 +286,11 @@ function FilterDrawer() {
             </TextContainer>
           </Modal.Section>
         </Modal>
+      </div>
+      <div style={{ height: "20px" }}>
+        <Frame>
+          <Page>{toastMarkup}</Page>
+        </Frame>
       </div>
     </div>
   );
