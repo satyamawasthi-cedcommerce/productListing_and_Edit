@@ -1,15 +1,4 @@
-import {
-  ChoiceList,
-  Columns,
-  Filters,
-  Frame,
-  Modal,
-  Page,
-  RangeSlider,
-  Select,
-  TextContainer,
-  TextField,
-} from "@shopify/polaris";
+import {Card, ChoiceList,Columns,Filters,Frame,Modal,Page,RangeSlider,Select,TextContainer,TextField,} from "@shopify/polaris";
 import { Toast } from "@shopify/polaris";
 import { Button } from "antd";
 import React, { useCallback, useState } from "react";
@@ -17,7 +6,6 @@ import React, { useCallback, useState } from "react";
 function FilterDrawer() {
   const [active, setActive] = useState(false);
   const [lookupActive, setLookupActive] = useState(false);
-
   const handleChange = useCallback(() => setActive(!active), [active]);
   const handleLookupChange = useCallback(
     () => setLookupActive(!lookupActive),
@@ -225,11 +213,10 @@ function FilterDrawer() {
       onRemove: handleTaggedWithRemove,
     });
   }
-
-  //
   return (
-    <div>
-      <Columns columns={{ xs: "2.5fr 1fr 1fr 1fr 1fr" }}>
+    <Card sectioned>
+      <Columns columns={{ xs: "2.5fr 0.5fr 1fr 1fr 1fr" }}>
+        <TextField></TextField>
         <Filters
           queryValue={queryValue}
           filters={filters}
@@ -237,6 +224,7 @@ function FilterDrawer() {
           onQueryChange={handleFiltersQueryChange}
           onQueryClear={handleQueryValueRemove}
           onClearAll={handleFiltersClearAll}
+          hideQueryField
         />
         <Button onClick={() => setActive(!active)}>Sync Status</Button>
         <Button onClick={() => setLookupActive(!lookupActive)}>
@@ -292,7 +280,7 @@ function FilterDrawer() {
           <Page>{toastMarkup}</Page>
         </Frame>
       </div>
-    </div>
+    </Card>
   );
 }
 function disambiguateLabel(key, value) {
