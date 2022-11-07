@@ -21,7 +21,7 @@
     },
     {
       title: "Amazon Status",
-      dataIndex: "amazon",
+      dataIndex: "amazonStatus",
     },
     {
       title: "Activity",
@@ -56,7 +56,7 @@
     },
     {
       title: "Amazon Status",
-      dataIndex: "amazon",
+      dataIndex: "childAmazonStatus",
     },
     {
       title: "Activity",

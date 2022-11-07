@@ -1,4 +1,4 @@
-import { Button, Card, Icon, Image, Pagination } from "@shopify/polaris";
+import { Button, Card, Icon, Image, Pagination, Badge } from "@shopify/polaris";
 import { Table } from "antd";
 import React, { useEffect, useState } from "react";
 import useFetch from "../../fetch";
@@ -13,6 +13,7 @@ function ProductTable({ selected, setSelected }) {
   });
   const [load, setLoad] = useState(false);
   const [productsData, setProductsData] = useState();
+  // this array is used to send the query parms to the url for tabChange
   const tabWiseUrl = [
     "",
     "&filter[cif_amazon_multi_inactive][1]={Not Listed}",
@@ -23,7 +24,7 @@ function ProductTable({ selected, setSelected }) {
   ];
   const { extractDataFromApi } = useFetch();
   const fetchFun = (data) => {
-    setLoad(false)
+    setLoad(false);
     // following variables hold the info to be passed
     setPagination({
       next: data.data.next,
@@ -38,6 +39,8 @@ function ProductTable({ selected, setSelected }) {
       var parentProductDetails = <></>;
       var childDetails = item.items;
       var inventoryQuantity = 0;
+      var amazonStatusrender = <Badge></Badge>;
+      var childAmazonStatus = <Badge></Badge>;
       // condition
       if (item.type === "variation") {
         item.items.forEach((childItem, childIndex) => {
@@ -45,7 +48,9 @@ function ProductTable({ selected, setSelected }) {
           var asinCode = childItem.asin;
           if (parentContainer_id !== childItem.source_product_id) {
             inventoryQuantity += childItem.quantity;
-
+            if (childItem["error"] !== undefined) {
+              childAmazonStatus = <Badge status="critical">Error</Badge>;
+            }
             childData.push({
               image: (
                 <Image
@@ -86,8 +91,19 @@ function ProductTable({ selected, setSelected }) {
               ),
               template: "N/A",
               inventory: childItem.quantity,
+              childAmazonStatus: childAmazonStatus,
             });
           } else {
+            console.log(childItem);
+            if (childItem["error"] !== undefined) {
+              amazonStatusrender = (
+                <p>
+                  <Badge status="critical">Error</Badge>
+                </p>
+              );
+              console.log(childItem["error"]);
+            }
+
             parentProductDetails = (
               <>
                 <p>
@@ -157,6 +173,7 @@ function ProductTable({ selected, setSelected }) {
             <Icon source={MobileVerticalDotsMajor} color="base" />
           </Button>
         ),
+        amazonStatus: amazonStatusrender,
         activity: "--",
         description: [...childData],
       });
@@ -168,7 +185,7 @@ function ProductTable({ selected, setSelected }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // following variables hold the info to be passed
-    setLoad(true)
+    setLoad(true);
     var url = `https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?${tabWiseUrl[selected]}`;
     // temporary varible to hold data
     var temp = extractDataFromApi(url);
@@ -177,6 +194,7 @@ function ProductTable({ selected, setSelected }) {
       setProductsData({ ...data });
       fetchFun(data);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
   const fetchpage = (pageData) => {
@@ -185,7 +203,7 @@ function ProductTable({ selected, setSelected }) {
       url = `https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?next=${pagination.next}&count=50`;
     else
       url = `https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?prev=${pagination.prev}&count=50`;
-    setLoad(true)
+    setLoad(true);
     var tempPage = extractDataFromApi(url);
     tempPage.then((nextData) => {
       fetchFun(nextData);
@@ -205,6 +223,7 @@ function ProductTable({ selected, setSelected }) {
                   columns={childColumns}
                   dataSource={record.description}
                   pagination={false}
+                  rowSelection={{}}
                 />
               ),
               rowExpandable: (record) => record.description.length > 0,

@@ -11,7 +11,6 @@ function Listing() {
   const [selected, setSelected] = useState(0);
   return (
     <div>
-      {" "}
       <div className={classes.gridContainer}>
         <div className={classes.topContent}>
           <div>
@@ -28,7 +27,7 @@ function Listing() {
             <FilterDrawer />
           </div>
           <div>
-            <ProductTable  selected={selected} setSelected={setSelected}/>
+            <ProductTable selected={selected} setSelected={setSelected} />
           </div>
         </Card>
       </div>

@@ -1,8 +1,23 @@
-import {Card, ChoiceList,Columns,Filters,Frame,Modal,Page,RangeSlider,Select,TextContainer,TextField,} from "@shopify/polaris";
+import {
+  ActionList,
+  Card,
+  Columns,
+  Filters,
+  Frame,
+  Icon,
+  Modal,
+  Page,
+  Popover,
+  RangeSlider,
+  TextContainer,
+  TextField,
+} from "@shopify/polaris";
 import { Toast } from "@shopify/polaris";
 import { Button } from "antd";
 import React, { useCallback, useState } from "react";
-
+import {
+  CaretDownMinor
+} from '@shopify/polaris-icons';
 function FilterDrawer() {
   const [active, setActive] = useState(false);
   const [lookupActive, setLookupActive] = useState(false);
@@ -99,10 +114,7 @@ function FilterDrawer() {
   const [taggedWith, setTaggedWith] = useState(null);
   const [queryValue, setQueryValue] = useState(null);
 
-  const handleAccountStatusChange = useCallback(
-    (value) => setAccountStatus(value),
-    []
-  );
+
   const handleMoneySpentChange = useCallback(
     (value) => setMoneySpent(value),
     []
@@ -139,19 +151,13 @@ function FilterDrawer() {
       key: "accountStatus",
       label: "Account status",
       filter: (
-        <ChoiceList
-          title="Account status"
-          titleHidden
-          choices={[
-            { label: "Enabled", value: "enabled" },
-            { label: "Not invited", value: "not invited" },
-            { label: "Invited", value: "invited" },
-            { label: "Declined", value: "declined" },
-          ]}
-          selected={accountStatus || []}
-          onChange={handleAccountStatusChange}
-          allowMultiple
-        />
+        <TextField
+        label="Tagged with"
+        value={taggedWith}
+        onChange={handleTaggedWithChange}
+        autoComplete="off"
+        labelHidden
+      />
       ),
       shortcut: true,
     },
@@ -213,10 +219,27 @@ function FilterDrawer() {
       onRemove: handleTaggedWithRemove,
     });
   }
+
+  // popover code
+  const [popoverActive, setPopoverActive] = useState(false);
+
+  const togglePopoverActive = useCallback(
+    () => setPopoverActive((popoverActive) => !popoverActive),
+    []
+  );
+
+  const activator = (
+    <Button onClick={togglePopoverActive} disclosure>
+      Bulk update <Icon source={CaretDownMinor} color="base" />
+    </Button>
+  );
+  const hello = () =>{
+    alert("hello");
+  }
   return (
     <Card sectioned>
       <Columns columns={{ xs: "2.5fr 0.5fr 1fr 1fr 1fr" }}>
-        <TextField></TextField>
+        <TextField placeholder="Search products"></TextField>
         <Filters
           queryValue={queryValue}
           filters={filters}
@@ -230,7 +253,20 @@ function FilterDrawer() {
         <Button onClick={() => setLookupActive(!lookupActive)}>
           Amazon Lookup
         </Button>
-        <Select></Select>
+        <Popover
+          active={popoverActive}
+          activator={activator}
+          autofocusTarget="first-node"
+          onClose={togglePopoverActive}
+        >
+          <ActionList
+            actionRole="menuitem"
+            items={[
+              { content: "Import Products" ,onAction:hello},
+              { content: "Export Products" ,onAction:hello},
+            ]}
+          />
+        </Popover>
       </Columns>
       <Modal
         open={active}
