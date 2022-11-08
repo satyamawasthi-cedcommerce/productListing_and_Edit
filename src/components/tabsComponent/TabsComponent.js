@@ -69,7 +69,6 @@ function TabsComponent({ selected, setSelected }) {
     var url = `https://multi-account.sellernext.com/home/public/connector/product/getStatusWiseCount`;
     var temp = extractDataFromApi(url);
     temp.then((statusCountData) => {
-      console.log(statusCountData);
       var tempStatus = {
         notListed: 0,
         inactive: 0,

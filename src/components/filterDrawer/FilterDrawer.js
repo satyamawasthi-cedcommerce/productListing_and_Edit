@@ -15,9 +15,8 @@ import {
 import { Toast } from "@shopify/polaris";
 import { Button } from "antd";
 import React, { useCallback, useState } from "react";
-import {
-  CaretDownMinor
-} from '@shopify/polaris-icons';
+import { CaretDownMinor } from "@shopify/polaris-icons";
+import Search from "../search/Search";
 function FilterDrawer() {
   const [active, setActive] = useState(false);
   const [lookupActive, setLookupActive] = useState(false);
@@ -100,6 +99,7 @@ function FilterDrawer() {
       })
       .finally(() => {});
     handleLookupChange();
+    toggleActive();
   };
   const [activeToast, setActiveToast] = useState(false);
   const toggleActive = useCallback(
@@ -113,7 +113,6 @@ function FilterDrawer() {
   const [moneySpent, setMoneySpent] = useState(null);
   const [taggedWith, setTaggedWith] = useState(null);
   const [queryValue, setQueryValue] = useState(null);
-
 
   const handleMoneySpentChange = useCallback(
     (value) => setMoneySpent(value),
@@ -152,12 +151,12 @@ function FilterDrawer() {
       label: "Account status",
       filter: (
         <TextField
-        label="Tagged with"
-        value={taggedWith}
-        onChange={handleTaggedWithChange}
-        autoComplete="off"
-        labelHidden
-      />
+          label="Tagged with"
+          value={taggedWith}
+          onChange={handleTaggedWithChange}
+          autoComplete="off"
+          labelHidden
+        />
       ),
       shortcut: true,
     },
@@ -233,90 +232,92 @@ function FilterDrawer() {
       Bulk update <Icon source={CaretDownMinor} color="base" />
     </Button>
   );
-  const hello = () =>{
+  const hello = () => {
     alert("hello");
-  }
+  };
   return (
-    <Card sectioned>
-      <Columns columns={{ xs: "2.5fr 0.5fr 1fr 1fr 1fr" }}>
-        <TextField placeholder="Search products"></TextField>
-        <Filters
-          queryValue={queryValue}
-          filters={filters}
-          appliedFilters={appliedFilters}
-          onQueryChange={handleFiltersQueryChange}
-          onQueryClear={handleQueryValueRemove}
-          onClearAll={handleFiltersClearAll}
-          hideQueryField
-        />
-        <Button onClick={() => setActive(!active)}>Sync Status</Button>
-        <Button onClick={() => setLookupActive(!lookupActive)}>
-          Amazon Lookup
-        </Button>
-        <Popover
-          active={popoverActive}
-          activator={activator}
-          autofocusTarget="first-node"
-          onClose={togglePopoverActive}
-        >
-          <ActionList
-            actionRole="menuitem"
-            items={[
-              { content: "Import Products" ,onAction:hello},
-              { content: "Export Products" ,onAction:hello},
-            ]}
+    <>
+      <Card sectioned>
+        <Columns columns={{ xs: "2.5fr 0.5fr 1fr 1fr 1fr" }}>
+          {/* <TextField placeholder="Search products" ></TextField> */}
+          <Search />
+          <Filters
+            queryValue={queryValue}
+            filters={filters}
+            appliedFilters={appliedFilters}
+            onQueryChange={handleFiltersQueryChange}
+            onQueryClear={handleQueryValueRemove}
+            onClearAll={handleFiltersClearAll}
+            hideQueryField
           />
-        </Popover>
-      </Columns>
-      <Modal
-        open={active}
-        onClose={handleChange}
-        title="Reach more shoppers with Instagram product tags"
-        primaryAction={{
-          content: "Proceed",
-          onAction: fetchSync,
-        }}
-      >
-        <Modal.Section>
-          <TextContainer>
-            <p>
-              It will search sku(s) in your Amazon’s seller panel. For all the
-              products with matching sku(s), status of main products will shown
-              under Amazon Status and variant’s status will reflect on Edit
-              Product page. Do you want to proceed with matching all the
-              product(s) from Amazon to that on app ?
-            </p>
-          </TextContainer>
-        </Modal.Section>
-      </Modal>
-
-      <div>
+          <Button onClick={() => setActive(!active)}>Sync Status</Button>
+          <Button onClick={() => setLookupActive(!lookupActive)}>
+            Amazon Lookup
+          </Button>
+          <Popover
+            active={popoverActive}
+            activator={activator}
+            autofocusTarget="first-node"
+            onClose={togglePopoverActive}
+          >
+            <ActionList
+              actionRole="menuitem"
+              items={[
+                { content: "Import Products", onAction: hello },
+                { content: "Export Products", onAction: hello },
+              ]}
+            />
+          </Popover>
+        </Columns>
         <Modal
-          open={lookupActive}
-          onClose={handleLookupChange}
+          open={active}
+          onClose={handleChange}
           title="Reach more shoppers with Instagram product tags"
           primaryAction={{
             content: "Proceed",
-            onAction: fetchLookup,
+            onAction: fetchSync,
           }}
         >
           <Modal.Section>
             <TextContainer>
               <p>
-                You can choose to run Amazon Lookup for any number of products
-                you want. This will update the status of those products that are
-                currently under “Not Listed: Offer” status.
+                It will search sku(s) in your Amazon’s seller panel. For all the
+                products with matching sku(s), status of main products will
+                shown under Amazon Status and variant’s status will reflect on
+                Edit Product page. Do you want to proceed with matching all the
+                product(s) from Amazon to that on app ?
               </p>
             </TextContainer>
           </Modal.Section>
         </Modal>
-      </div>
-      <div style={{ height: "20px" }}>
-        <Frame>
-          <Page>{toastMarkup}</Page>
-        </Frame>
-      </div>
-    </Card>
+        <div style={{ height: "2px" }}>
+          <Frame>
+            <Page>{toastMarkup}</Page>
+          </Frame>
+        </div>
+        <div>
+          <Modal
+            open={lookupActive}
+            onClose={handleLookupChange}
+            title="Reach more shoppers with Instagram product tags"
+            primaryAction={{
+              content: "Proceed",
+              onAction: fetchLookup,
+            }}
+          >
+            <Modal.Section>
+              <TextContainer>
+                <p>
+                  You can choose to run Amazon Lookup for any number of products
+                  you want. This will update the status of those products that
+                  are currently under “Not Listed: Offer” status.
+                </p>
+              </TextContainer>
+            </Modal.Section>
+          </Modal>
+        </div>
+      </Card>
+    </>
   );
 }
 function disambiguateLabel(key, value) {

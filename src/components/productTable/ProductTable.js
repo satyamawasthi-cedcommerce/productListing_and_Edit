@@ -5,7 +5,9 @@ import useFetch from "../../fetch";
 import { childColumns, columns } from "../../tableColumns";
 import { MobileVerticalDotsMajor } from "@shopify/polaris-icons";
 import classes from "./ProductTable.module.css";
-function ProductTable({ selected, setSelected }) {
+import { connect } from "react-redux";
+import { containerSearch } from "../../redux/Action";
+function ProductTable({ selected, setSelected, state }) {
   const [productDataDisplay, setProductDataDisplay] = useState([]);
   const [pagination, setPagination] = useState({
     next: null,
@@ -49,7 +51,13 @@ function ProductTable({ selected, setSelected }) {
           if (parentContainer_id !== childItem.source_product_id) {
             inventoryQuantity += childItem.quantity;
             if (childItem["error"] !== undefined) {
-              childAmazonStatus = <Badge status="critical">Error</Badge>;
+              childAmazonStatus = (
+                <p>
+                  <Badge status="critical">Error</Badge>
+                  <br />
+                  <Button plain>View Error</Button>
+                </p>
+              );
             }
             childData.push({
               image: (
@@ -94,14 +102,14 @@ function ProductTable({ selected, setSelected }) {
               childAmazonStatus: childAmazonStatus,
             });
           } else {
-            console.log(childItem);
             if (childItem["error"] !== undefined) {
               amazonStatusrender = (
                 <p>
                   <Badge status="critical">Error</Badge>
+                  <br />
+                  <Button plain>View Error</Button>
                 </p>
               );
-              console.log(childItem["error"]);
             }
 
             parentProductDetails = (
@@ -128,6 +136,28 @@ function ProductTable({ selected, setSelected }) {
       } else {
         childDetails.forEach((parentItemDetails, parentItemIndex) => {
           if (parentContainer_id === parentItemDetails.source_product_id) {
+            if (parentItemDetails["error"] !== undefined) {
+              amazonStatusrender = (
+                <p>
+                  <Badge status="critical">Error</Badge>
+                  <br />
+                  <Button plain>View Error</Button>
+                </p>
+              );
+            } else if (parentItemDetails.status !== undefined) {
+              amazonStatusrender = (
+                <>
+                  <Badge status="success">{parentItemDetails.status}</Badge>
+                </>
+              );
+            } else {
+              amazonStatusrender = (
+                <>
+                  <Badge>Not Listed</Badge>
+                </>
+              );
+            }
+
             parentProductDetails = (
               <>
                 <p>
@@ -180,23 +210,28 @@ function ProductTable({ selected, setSelected }) {
     });
     setProductDataDisplay([...storeData]);
   };
-  console.log(productDataDisplay);
-  console.log(productsData);
+  console.log(state);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // following variables hold the info to be passed
     setLoad(true);
-    var url = `https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?${tabWiseUrl[selected]}`;
+    // var searchId =
+    console.log(state.conatinerId.id);
+    var searchQuery = "";
+    if (state.conatinerId.id !== undefined)
+      searchQuery = `&filter[container_id][1]=${state.conatinerId.id}`;
+
+    var url = `https://multi-account.sellernext.com/home/public/connector/product/getRefineProducts?${searchQuery}${tabWiseUrl[selected]}`;
     // temporary varible to hold data
     var temp = extractDataFromApi(url);
     temp.then((data) => {
-      console.log(data);
+      // console.log(data);
       setProductsData({ ...data });
       fetchFun(data);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
-
+  }, [selected, state.conatinerId]);
+  // console.log(conatinerId);
   const fetchpage = (pageData) => {
     var url = "";
     if (pageData === "next")
@@ -207,7 +242,7 @@ function ProductTable({ selected, setSelected }) {
     var tempPage = extractDataFromApi(url);
     tempPage.then((nextData) => {
       fetchFun(nextData);
-      console.log(nextData);
+      // console.log(nextData);
     });
   };
   return (
@@ -215,6 +250,7 @@ function ProductTable({ selected, setSelected }) {
       <Card sectioned>
         <div>
           <Table
+            bordered
             pagination={false}
             expandable={{
               expandedRowRender: (record) => (
@@ -252,5 +288,16 @@ function ProductTable({ selected, setSelected }) {
     </>
   );
 }
+const mapStateToProps = (state) => {
+  return {
+    state: state,
+  };
+};
+// this function is passed as second argument to connect
+const mapDispatchToProps = (dispatch) => {
+  return {
+    containerSearch: (value) => dispatch(containerSearch(value)),
+  };
+};
 
-export default ProductTable;
+export default connect(mapStateToProps, mapDispatchToProps)(ProductTable);
