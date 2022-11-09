@@ -139,7 +139,7 @@ function ProductTable({ selected, setSelected, state }) {
             if (parentItemDetails["error"] !== undefined) {
               amazonStatusrender = (
                 <p>
-                  <Badge status="critical">Error</Badge>
+                  <Badge status="critical" >Error</Badge>
                   <br />
                   <Button plain>View Error</Button>
                 </p>
@@ -210,13 +210,11 @@ function ProductTable({ selected, setSelected, state }) {
     });
     setProductDataDisplay([...storeData]);
   };
-  console.log(state);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // following variables hold the info to be passed
     setLoad(true);
     // var searchId =
-    console.log(state.conatinerId.id);
     var searchQuery = "";
     if (state.conatinerId.id !== undefined)
       searchQuery = `&filter[container_id][1]=${state.conatinerId.id}`;
